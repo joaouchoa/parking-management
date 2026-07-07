@@ -1,0 +1,53 @@
+services:
+
+  # ── Banco de dados ────────────────────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "(/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1') || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ── Migrations (roda uma vez e encerra) ───────────────────────────────────────
+  migrations:
+    build:
+      context: .
+      dockerfile: src/ParkingManagement.Infrastructure.Migrations/Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      SQLSERVER_CONN: "Server=sqlserver,1433;Database=ParkingManagement;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+
+  # ── API REST + Webhook ────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: src/ParkingManagement.Api/Dockerfile
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    ports:
+      - "5089:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__SqlServer: "Server=sqlserver,1433;Database=ParkingManagement;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+      # O simulador da Estapar (ou o stub local do guia de testes manuais) roda no
+      # host, fora do Docker — host.docker.internal aponta o container de volta
+      # para lá. Sobrescreva com a URL real do simulador quando disponível.
+      Simulator__BaseUrl: "http://host.docker.internal:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  sqlserver_data:

@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ParkingManagement.Api/ParkingManagement.Api.csproj" />
+    <Project Path="src/ParkingManagement.Application/ParkingManagement.Application.csproj" />
+    <Project Path="src/ParkingManagement.Domain/ParkingManagement.Domain.csproj" />
+    <Project Path="src/ParkingManagement.Infrastructure.Migrations/ParkingManagement.Infrastructure.Migrations.csproj" />
+    <Project Path="src/ParkingManagement.Infrastructure/ParkingManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ParkingManagement.Application.Tests/ParkingManagement.Application.Tests.csproj" />
+    <Project Path="tests/ParkingManagement.Domain.Tests/ParkingManagement.Domain.Tests.csproj" />
+    <Project Path="tests/ParkingManagement.Integration.Tests/ParkingManagement.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

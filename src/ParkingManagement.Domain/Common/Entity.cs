@@ -1,0 +1,26 @@
+namespace ParkingManagement.Domain.Common;
+
+public abstract class Entity
+{
+    public Guid Id { get; protected init; }
+
+    protected Entity()
+    {
+        Id = Guid.NewGuid();
+    }
+
+    protected Entity(Guid id)
+    {
+        Id = id;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Entity other || obj.GetType() != GetType())
+            return false;
+
+        return Id == other.Id;
+    }
+
+    public override int GetHashCode() => Id.GetHashCode();
+}
